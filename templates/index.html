@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ai Chat</title>
+    <style>
+        :root {
+            --primary-color: #424856;
+            --primary-hover: #6F5B4A;
+            --background: #D7D8C7;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #6F5B4A;
+            --border-color: #8699A8;
+            --user-message-bg: #979E6B;
+            --bot-message-bg: #8699A8;
+            --shadow: 0 4px 6px -1px rgba(111, 91, 74, 0.15), 0 2px 4px -1px rgba(111, 91, 74, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            background-image: linear-gradient(45deg, rgba(66, 72, 86, 0.05) 25%, transparent 25%, transparent 50%, rgba(66, 72, 86, 0.05) 50%, rgba(66, 72, 86, 0.05) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin: 1rem;
+            transition: var(--transition);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        h1:after {
+            content: "";
+            position: absolute;
+            width: 40%;
+            height: 3px;
+            background: var(--primary-hover);
+            bottom: -5px;
+            left: 30%;
+        }
+        
+        #chat-form {
+            display: flex;
+            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+        }
+        
+        #user-message {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        
+        #user-message:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #chat-response {
+            background-color: rgba(215, 216, 199, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 200px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .user-message {
+            background-color: rgba(151, 158, 107, 0.2);
+            border-left: 4px solid var(--user-message-bg);
+            margin-left: 1rem;
+            border-top-left-radius: 2px;
+        }
+        
+        .bot-message {
+            background-color: rgba(134, 153, 168, 0.2);
+            border-left: 4px solid var(--bot-message-bg);
+            margin-right: 1rem;
+            border-top-right-radius: 2px;
+        }
+        
+        .message-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .message-content {
+            word-wrap: break-word;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            animation: loadingDot 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        
+        .loading-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes loadingDot {
+            0%, 80%, 100% { 
+                transform: scale(0);
+            } 
+            40% { 
+                transform: scale(1.0);
+            }
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            
+            #chat-form {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gemini 1.5 Flash</h1>
+        <form id="chat-form">
+            <input type="text" id="user-message" placeholder="Введите сообщение..." required>
+            <button type="submit">Отправить</button>
+        </form>
+        <div id="chat-response"></div>
+    </div>
+
+    <script>
+        document.getElementById("chat-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const userMessage = document.getElementById("user-message").value;
+            const responseDiv = document.getElementById("chat-response");
+            
+            // Добавляем сообщение пользователя
+            const userMessageElement = document.createElement("div");
+            userMessageElement.classList.add("message", "user-message");
+            userMessageElement.innerHTML = `
+                <div class="message-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                    <span>Вы</span>
+                </div>
+                <div class="message-content">${userMessage}</div>
+            `;
+            responseDiv.appendChild(userMessageElement);
+            
+            // Показываем индикатор загрузки
+            const loadingElement = document.createElement("div");
+            loadingElement.classList.add("loading");
+            loadingElement.innerHTML = `
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            `;
+            responseDiv.appendChild(loadingElement);
+            
+            // Очищаем поле ввода
+            document.getElementById("user-message").value = "";
+
+            // Прокручиваем до конца
+            responseDiv.scrollTop = responseDiv.scrollHeight;
+
+            try {
+                const response = await fetch("/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `message=${encodeURIComponent(userMessage)}`
+                });
+                
+                const data = await response.json();
+                
+                // Удаляем индикатор загрузки
+                responseDiv.removeChild(loadingElement);
+                
+                // Добавляем ответ бота
+                const botMessageElement = document.createElement("div");
+                botMessageElement.classList.add("message", "bot-message");
+                botMessageElement.innerHTML = `
+                    <div class="message-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#424856" viewBox="0 0 16 16">
+                            <path d="M9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.825a2 2 0 0 1-1.991-1.819l-.637-7a2 2 0 0 1 1.991-2.181h3.982a.5.5 0 0 1 .5.5V4h2v-.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.5 1a2 2 0 0 0-2 2h4a2 2 0 0 0-2-2z"/>
+                        </svg>
+                        <span>AI Ассистент</span>
+                    </div>
+                    <div class="message-content">${data.response || data.error}</div>
+                `;
+                responseDiv.appendChild(botMessageElement);
+                
+                // Прокручиваем до конца
+                responseDiv.scrollTop = responseDiv.scrollHeight;
+            } catch (error) {
+                // Удаляем индикатор загрузки
+                responseDiv.removeChild(loadingElement);
+                
+                // Показываем ошибку
+                const errorElement = document.createElement("div");
+                errorElement.classList.add("message", "bot-message");
+                errorElement.innerHTML = `
+                    <div class="message-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ef4444" viewBox="0 0 16 16">
+                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.887 0 1.436-.988.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                        </svg>
+                        <span>Ошибка</span>
+                    </div>
+                    <div class="message-content">Произошла ошибка: ${error.message}</div>
+                `;
+                responseDiv.appendChild(errorElement);
+                
+                // Прокручиваем до конца
+                responseDiv.scrollTop = responseDiv.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
