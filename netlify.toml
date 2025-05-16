@@ -1,3 +1,4 @@
 [build]
-command = "pip install -r requirements.txt"
-functions = "functions"
+command = "pip install -r requirements.txt"  # Установка зависимостей
+functions = "functions"                      # Папка с функциями
+publish = "public"                           # Папка со статикой
